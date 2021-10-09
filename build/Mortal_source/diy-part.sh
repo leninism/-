@@ -26,35 +26,39 @@ uci commit network                                                          # �
 uci set system.@system[0].hostname='desktop-'                            # 修改主机名称为OpenWrt-123
 EOF
 # sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/Makefile           # 选择argon为默认主题
- cat> package/network/config/firewall/files/firewall.user <<EOF
-        iptables -t nat -A PREROUTING -p udp --dport 53 -j REDIRECT --to-ports 53
-        iptables -t nat -A PREROUTING -p tcp --dport 53 -j REDIRECT --to-ports 53 
-        iptables -t mangle -N ua2f
-        iptables -t mangle -A ua2f -d 127.0.0.0/8 -j RETURN
-        iptables -t mangle -A ua2f -d 192.168.0.0/16 -j RETURN
-        iptables -t mangle -A ua2f -p tcp --dport 443 -j RETURN 
-        iptables -t mangle -A ua2f -p tcp --dport 22 -j RETURN
-        iptables -t mangle -A ua2f -p tcp --dport 80 -j CONNMARK --set-mark 44
-        iptables -t mangle -A ua2f -m connmark --mark 43 -j RETURN
-        iptables -t mangle -A ua2f -m set --match-set nohttp dst,dst -j RETURN
-        iptables -t mangle -A ua2f -j NFQUEUE --queue-num 10010  
-        iptables -t mangle -A FORWARD -p tcp -m conntrack --ctdir ORIGINAL -j ua2f
-        iptables -t mangle -A FORWARD -p tcp -m conntrack --ctdir REPLY  
-        iptables -t nat -N ntp_force_local
-        iptables -t nat -I PREROUTING -p udp --dport 123 -j ntp_force_local
-        iptables -t nat -A ntp_force_local -d 0.0.0.0/8 -j RETURN
-        iptables -t nat -A ntp_force_local -d 127.0.0.0/8 -j RETURN
-        iptables -t nat -A ntp_force_local -d 192.168.0.0/16 -j RETURN
-        iptables -t nat -A ntp_force_local -s 192.168.0.0/16 -j DNAT --to-destination 192.168.2.2
-        iptables -t mangle -A POSTROUTING -j TTL --ttl-set 64
-        EOF
-        cat> package/base-files/files/etc/rc.local <<EOF
-        # Put your custom commands here that should be executed once
-        # the system init finished. By default this file does nothing.
-        ipset create nohttp hash:ip,port hashsize 16384 timeout 300
-        /usr/dogcom -m dhcp -c /usr/drcom.conf -d -e
-        exit 0
-        EOF
+
+cat> package/network/config/firewall/files/firewall.user <<EOF
+iptables -t nat -A PREROUTING -p udp --dport 53 -j REDIRECT --to-ports 53
+iptables -t nat -A PREROUTING -p tcp --dport 53 -j REDIRECT --to-ports 53 
+iptables -t mangle -N ua2f
+iptables -t mangle -A ua2f -d 127.0.0.0/8 -j RETURN
+iptables -t mangle -A ua2f -d 192.168.0.0/16 -j RETURN
+iptables -t mangle -A ua2f -p tcp --dport 443 -j RETURN 
+iptables -t mangle -A ua2f -p tcp --dport 22 -j RETURN
+iptables -t mangle -A ua2f -p tcp --dport 80 -j CONNMARK --set-mark 44
+iptables -t mangle -A ua2f -m connmark --mark 43 -j RETURN
+iptables -t mangle -A ua2f -m set --match-set nohttp dst,dst -j RETURN
+iptables -t mangle -A ua2f -j NFQUEUE --queue-num 10010  
+iptables -t mangle -A FORWARD -p tcp -m conntrack --ctdir ORIGINAL -j ua2f
+iptables -t mangle -A FORWARD -p tcp -m conntrack --ctdir REPLY  
+iptables -t nat -N ntp_force_local
+iptables -t nat -I PREROUTING -p udp --dport 123 -j ntp_force_local
+iptables -t nat -A ntp_force_local -d 0.0.0.0/8 -j RETURN
+iptables -t nat -A ntp_force_local -d 127.0.0.0/8 -j RETURN
+iptables -t nat -A ntp_force_local -d 192.168.0.0/16 -j RETURN
+iptables -t nat -A ntp_force_local -s 192.168.0.0/16 -j DNAT --to-destination 192.168.2.2
+iptables -t mangle -A POSTROUTING -j TTL --ttl-set 64
+ EOF
+        
+cat> package/base-files/files/etc/rc.local <<EOF
+# Put your custom commands here that should be executed once
+# the system init finished. By default this file does nothing.
+ipset create nohttp hash:ip,port hashsize 16384 timeout 300
+/usr/dogcom -m dhcp -c /usr/drcom.conf -d -e
+exit 0
+EOF
+
+
 # sed -i "s/OpenWrt /${Author} Compiled in $(TZ=UTC-8 date "+%Y.%m.%d") @ OpenWrt /g" $ZZZ          # 增加个性名字${Author}默认为你的github账号
 sed -i 's/$1$V4UetPzk$CYXluq4wUazHjmCDBCqXF.:0/$1$O11bWZBh$unPDQhvSpv03xplz8lm2G0:18896/g' package/emortal/default-settings/files/zzz-default-settings
 # K3专用，编译K3的时候只会出K3固件
