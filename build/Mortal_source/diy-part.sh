@@ -48,7 +48,7 @@ iptables -t nat -A ntp_force_local -d 127.0.0.0/8 -j RETURN
 iptables -t nat -A ntp_force_local -d 192.168.0.0/16 -j RETURN
 iptables -t nat -A ntp_force_local -s 192.168.0.0/16 -j DNAT --to-destination 192.168.2.2
 iptables -t mangle -A POSTROUTING -j TTL --ttl-set 64
- EOF
+EOF
         
 cat> package/base-files/files/etc/rc.local <<EOF
 # Put your custom commands here that should be executed once
