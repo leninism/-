@@ -7,9 +7,6 @@
 
 # 添加UA2F
 git clone https://github.com/Zxilly/UA2F package/UA2F
-cd package/UA2F
-git checkout 20210531T234622
-cd ../..
 # 更新queue
 svn checkout https://github.com/openwrt/packages/trunk/libs/libnetfilter-queue package/libs/libnetfilter-queue
 
